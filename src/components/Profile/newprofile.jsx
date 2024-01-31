@@ -3,8 +3,16 @@ import React, { useState } from 'react';
 import './newprofile.css';
 import isLoggedIn from '../../auth/isLoggedIn';
 import { Navigate, Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import axios from "axios";
+import Cookies from "universal-cookie";
+import { useNavigate } from "react-router-dom";
 
 const NewProfile = () => {
+  const cookies = new Cookies();
+
+  
+
   const initialUserData = {
     "name": "Sriram",
     "reg_number": "21BDG0921",
@@ -31,11 +39,41 @@ const NewProfile = () => {
     { label: "Mobile Number", key: "phone_number" }
   ];
 
+  async function fetchData(getting) {
+    var config = {
+      headers: { "Accept": "/", "token": `${ getting }`
+  }
+}
+console.log(config);
+let response = await axios.get('http://localhost:5000/profile/read', config);
+    if (response.status === 201) {
+    setUserData(response.data)
+}
+    }
+
   const handleSaveChanges = () => {
     // You can add logic here to save changes to the backend if needed
     setEdit(false);
     // Display a success message or perform additional actions as needed
   };
+
+  async function retrieve() {
+    let getting = await cookies.get("jwt_authorization")
+    cookies.get({
+      name: "jwt_authorization",
+    })
+    if (getting) {
+      console.log(getting);
+      fetchData(getting);
+      console.log("Redirected");
+    }
+    else {
+      console.log("error");
+    }
+  }
+  useEffect(() => {
+    retrieve()
+  }, [])
 
   return (
     <div className="body gradient-background">
